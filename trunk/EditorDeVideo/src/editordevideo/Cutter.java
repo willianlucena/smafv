@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package editordevideo;
 
 /**
@@ -62,7 +58,8 @@ public class Cutter implements DataSinkListener {
         //Definir o formato de exibição de saída
         ContentDescriptor cd = new FileTypeDescriptor(FileTypeDescriptor.RAW);
         TrackControl tc[] = proc.getTrackControls();
-
+        System.out.println("TC size: " + tc.length);
+        /// ESSE ARRAY TRACK CONTROL SO TEM UM (1) !!!
         if (!this.setTrackFormat(new VideoFormat(VideoFormat.JPEG), tc[0])) {
             System.err.println("NÃO É POSSÍVEL CONVERTER O VÍDEO PARA JPEG");
         }
