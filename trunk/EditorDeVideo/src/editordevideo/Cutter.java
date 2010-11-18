@@ -4,18 +4,16 @@ package editordevideo;
  *
  * @author Maxwell
  */
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.*;
 
-import java.util.*;
 import javax.media.control.*;
-import javax.media.format.AudioFormat;
-import javax.media.format.VideoFormat;
 import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.media.datasink.*;
 
 import java.io.*;
-import sun.audio.AudioTranslatorStream;
 
 public class Cutter implements DataSinkListener {
 
@@ -50,7 +48,7 @@ public class Cutter implements DataSinkListener {
         } catch (NoProcessorException e) {
             throw new CutterException("Não foi possivel criar um Processor do " + inML.toString(), e);
         }
-        
+
         ProcessorWaiter pwIN = new ProcessorWaiter(proc);
         if (!pwIN.waitForState(Processor.Configured)) {
             throw new CutterException("Não foi possível configurar o processor " + inML);
@@ -58,13 +56,19 @@ public class Cutter implements DataSinkListener {
         //Definir o formato de exibição de saída
         ContentDescriptor cd = new FileTypeDescriptor(FileTypeDescriptor.RAW);
         TrackControl tc[] = proc.getTrackControls();
-        System.out.println("TC size: " + tc.length);
-        /// ESSE ARRAY TRACK CONTROL SO TEM UM (1) !!!
+        int tamTC = tc.length;
+        System.out.println(tamTC);
+        System.out.println(tc[0].getFormat().getEncoding());
+
         if (!this.setTrackFormat(new VideoFormat(VideoFormat.JPEG), tc[0])) {
             System.err.println("NÃO É POSSÍVEL CONVERTER O VÍDEO PARA JPEG");
         }
-        if (!this.setTrackFormat(new AudioFormat(AudioFormat.LINEAR), tc[1])) {
-            System.err.println("NÃO É POSSÍVEL CONVERTER O AUDIO PARA LINEAR");
+        try {
+            if (!this.setTrackFormat(new AudioFormat(AudioFormat.LINEAR), tc[0])) {
+                System.err.println("NÃO É POSSÍVEL CONVERTER O AUDIO PARA LINEAR");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
         }
         if (!pwIN.waitForState(Processor.Realized)) {
             throw new CutterException("Processor não mudou de estado para " + inML);
@@ -128,7 +132,7 @@ public class Cutter implements DataSinkListener {
                 }
                 if (qc != null) {
                     break;
-                    
+
                 }
             }
         }
@@ -175,16 +179,24 @@ public class Cutter implements DataSinkListener {
             System.err.println("Falha ao configurar o PipeLine de envio");
         }
         // Define o formato do arquivo de saída
-        ContentDescriptor cdout = new FileTypeDescriptor(FileTypeDescriptor.MSVIDEO);
+        ContentDescriptor cdout = new FileTypeDescriptor(FileTypeDescriptor.WAVE);
         outp.setContentDescriptor(cdout);
 
         TrackControl tc[] = outp.getTrackControls();
         // Define o formato das trilhas de vídeo
         if (!this.setTrackFormat(new VideoFormat(VideoFormat.MJPG), tc[0])) {
-            System.err.println("NÃO E POSSIVEL COVERTER O VÍDEO PARA MJPEG");
+            System.err.println("NÃO É POSSIVEL COVERTER O VÍDEO PARA MJPEG - outro");
+        } else {
+            System.out.println("Deu certo outro");
         }
-        if (!this.setTrackFormat(new AudioFormat(AudioFormat.ULAW, 8000, 8, 1), tc[1])) {
-            System.err.println("NÃO É POSSÍVEL CONVERTER O AUDIO PARA ULAW");
+        try {
+            if (!this.setTrackFormat(new AudioFormat(AudioFormat.ULAW, 8000, 8, 1), tc[0])) {
+                System.err.println("NÃO É POSSÍVEL CONVERTER O AUDIO PARA ULAW");
+            } else {
+                System.out.println("Deu Certo Outro");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("asdada");
         }
 
         if (!pwout.waitForState(Processor.Realized)) {
@@ -197,6 +209,7 @@ public class Cutter implements DataSinkListener {
             filewriter = Manager.createDataSink(outp.getDataOutput(), destination);
         } catch (NoDataSinkException e) {
             System.err.println("Não é possível criar o DataSink para " + inML + " e " + destination);
+            //e.printStackTrace();
             return;
         }
 
@@ -246,7 +259,6 @@ public class Cutter implements DataSinkListener {
     }
 
     public void controllerUpdate(ControllerEvent ce) {
-
     }
 
     /** A takto se støíhá :-)
@@ -254,13 +266,26 @@ public class Cutter implements DataSinkListener {
     public static void main(String[] args) {
         try {
             Cutter cut = new Cutter("C:\\exemplo.mpg");
-            Time[] start = {new Time(1560.0d)};
-            Time[] end = {new Time(1610.0d)};
-            cut.cut(start, end, new MediaLocator("C:\\oot6.avi"));
-            System.out.println("done");
+            Time[] start = {new Time(0.0d)};
+            Time[] end = {new Time(10.0d)};
+//            FileOutputStream saida;
+//            File file = new File("E:/oot6.txt");
+//            try {
+//                saida = new FileOutputStream(file);
+//                String a = "atsaftsafatsfdtasda";
+//                saida.write(a.getBytes());
+//                saida.close();
+//            } catch (FileNotFoundException ex) {
+//                Logger.getLogger(Cutter.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IOException e) {
+//                Logger.getLogger(Cutter.class.getName()).log(Level.SEVERE, null, e);
+//            }
 
+            cut.cut(start, end, new MediaLocator("file:///C:/oot6.wav"));
+            System.out.println("done");
         } catch (CutterException e) {
             e.printStackTrace();
         }
+        System.exit(0);
     }
 }
