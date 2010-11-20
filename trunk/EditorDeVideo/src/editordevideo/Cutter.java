@@ -36,7 +36,7 @@ public class Cutter implements DataSinkListener {
                 throw new CutterException("Arquivo " + inputfile + " Negado!");
             }
         }
-        inML = new MediaLocator("file:///C:/exemplo.mpg");
+        inML = new MediaLocator("file:///home/felipe/dwhelper/jokes.mpg");
         //inML = new MediaLocator(inputfile);'
         //inDS = new DataSource(inML);
         //System.out.println(inML);
@@ -64,7 +64,7 @@ public class Cutter implements DataSinkListener {
             System.err.println("NÃO É POSSÍVEL CONVERTER O VÍDEO PARA JPEG");
         }
         try {
-            if (!this.setTrackFormat(new AudioFormat(AudioFormat.LINEAR), tc[0])) {
+            if (!this.setTrackFormat(new AudioFormat(AudioFormat.LINEAR), tc[1])) {
                 System.err.println("NÃO É POSSÍVEL CONVERTER O AUDIO PARA LINEAR");
             }
         } catch (IndexOutOfBoundsException e) {
@@ -179,7 +179,7 @@ public class Cutter implements DataSinkListener {
             System.err.println("Falha ao configurar o PipeLine de envio");
         }
         // Define o formato do arquivo de saída
-        ContentDescriptor cdout = new FileTypeDescriptor(FileTypeDescriptor.WAVE);
+        ContentDescriptor cdout = new FileTypeDescriptor(FileTypeDescriptor.MSVIDEO);
         outp.setContentDescriptor(cdout);
 
         TrackControl tc[] = outp.getTrackControls();
@@ -190,7 +190,7 @@ public class Cutter implements DataSinkListener {
             System.out.println("Deu certo outro");
         }
         try {
-            if (!this.setTrackFormat(new AudioFormat(AudioFormat.ULAW, 8000, 8, 1), tc[0])) {
+            if (!this.setTrackFormat(new AudioFormat(AudioFormat.ULAW, 8000, 8, 1), tc[1])) {
                 System.err.println("NÃO É POSSÍVEL CONVERTER O AUDIO PARA ULAW");
             } else {
                 System.out.println("Deu Certo Outro");
@@ -265,7 +265,7 @@ public class Cutter implements DataSinkListener {
      */
     public static void main(String[] args) {
         try {
-            Cutter cut = new Cutter("C:\\exemplo.mpg");
+            Cutter cut = new Cutter("/home/felipe/dwhelper/jokes.mpg");
             Time[] start = {new Time(0.0d)};
             Time[] end = {new Time(10.0d)};
 //            FileOutputStream saida;
@@ -281,7 +281,7 @@ public class Cutter implements DataSinkListener {
 //                Logger.getLogger(Cutter.class.getName()).log(Level.SEVERE, null, e);
 //            }
 
-            cut.cut(start, end, new MediaLocator("file:///C:/oot6.wav"));
+            cut.cut(start, end, new MediaLocator("file:///home/felipe/dwhelper/asd.wav"));
             System.out.println("done");
         } catch (CutterException e) {
             e.printStackTrace();
